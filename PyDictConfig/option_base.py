@@ -17,9 +17,14 @@ def always_valid(option, value):
 
 def define_name_new(cls, name):
     _name = "%s_%s" % (cls.__name__, name)
+    if hasattr(cls, "config_name"):
+        _config_name = cls.config_name
+    else:
+        _config_name = name
     return type(_name, (cls, ), {
         "__new__": object.__new__,
         "name": name,
+        "config_name": _config_name,
     })
 
 def define_base_new(cls, **kwargs):
@@ -41,7 +46,7 @@ class Option(object):
 
     """
     id = 0
-    option_fields = ("default", "validator", "doc")
+    option_fields = ("config_name", "default", "validator", "doc")
     default = NO_VALUE
     validator = always_valid
     doc = ""
@@ -56,20 +61,20 @@ class Option(object):
 
     @property
     def value(self):
-        return self.value_dict[self.name]
+        return self.value_dict[self.config_name]
 
     @value.setter
     def value(self, val):
         val = self.validate(val)
-        self.value_dict[self.name] = val
+        self.value_dict[self.config_name] = val
 
     def __init__(self, value_dict={}):
         self.value_dict = value_dict
 
-        _val = value_dict.get(self.name, NO_VALUE)
+        _val = value_dict.get(self.config_name, NO_VALUE)
         if _val == NO_VALUE and self.default == NO_VALUE:
             raise ValueError("Required value '%s' not found in config" \
-                % self.name
+                % self.config_name
             )
         if _val == NO_VALUE:
             _val = self.default

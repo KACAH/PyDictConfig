@@ -1,3 +1,5 @@
+from section import SectionChangeError
+
 class ConfigBase(object):
     """Base class for all PyDictConfig configs"""
 
@@ -14,6 +16,18 @@ class ConfigBase(object):
             return getattr(self.schema, name)
         except:
             return _ga(name)
+
+    def __setattr__(self, name, val):
+        _sa = super(ConfigBase, self).__setattr__
+        if hasattr(self, "schema"):
+            try:
+                setattr(self.schema, name, val)
+            except SectionChangeError:
+                raise
+            except:
+                _sa(name, val)
+        else:
+            _sa(name, val)
 
     def load(self):
         """Load config from source"""
