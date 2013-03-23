@@ -73,4 +73,4 @@ class TestIntOption(unittest.TestCase):
 
     def test_invalidtype(self):
         _config = DictConfig(InvalidTypeOptionSchema)
-        self.assertRaises(ValueError, _config.load, {})
+        self.assertRaises(TypeError, _config.load, {})
